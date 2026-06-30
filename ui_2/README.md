@@ -23,8 +23,8 @@ winget install --id OpenJS.NodeJS.LTS --exact --scope user
 ## Install and run
 
 ```powershell
-cd C:\Users\vasav\OneDrive\Documents\ui_va\ui_2
-npm install
+cd C:\Users\vasav\OneDrive\Documents\voice_assitant\ui_2
+npm ci
 npm run dev
 ```
 
@@ -39,6 +39,13 @@ npm run preview
 ```
 
 `npm run build` writes the production bundle to `dist/`.
+
+If the Windows terminal still cannot find `node`, use the retained Windows
+launcher:
+
+```powershell
+npm.cmd run dev:windows
+```
 
 ## Microphone permission
 
@@ -153,6 +160,26 @@ jitter. React telemetry updates at roughly 12 Hz, while shader values are
 passed through a mutable ref and update every rendered frame.
 
 ## Raspberry Pi 5 performance
+
+After cloning or pulling the repository on the Pi, install the project-local
+dependencies before starting Vite:
+
+```bash
+cd ~/Documents/voice_assitant/ui_2
+node --version
+npm --version
+npm ci --include=dev
+npm run dev
+```
+
+Open `http://127.0.0.1:5173` in Chromium running on the Pi. Do not use
+`npx vite` before installing dependencies: Vite and its React plugin must be
+resolved from this project's `node_modules`.
+
+The development server also listens on the Pi's network interface. Remote
+devices can load `http://<PI_IP>:5173`, but browser microphone access over a
+remote plain-HTTP address is normally blocked. Use Chromium locally on the Pi
+or configure HTTPS for remote microphone access.
 
 The project avoids per-frame React state for animation, shares orb geometry,
 uses one point-cloud draw call, disables MSAA, and caps device pixel ratio.

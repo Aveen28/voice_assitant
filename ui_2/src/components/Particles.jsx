@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
+import { PERFORMANCE_PROFILE } from '../config/performance'
 import particleVertexShader from '../shaders/particles.vert.glsl?raw'
 import particleFragmentShader from '../shaders/particles.frag.glsl?raw'
 
@@ -29,10 +30,7 @@ function createParticleGeometry(count) {
 }
 
 export function Particles({ audioRef, visual, theme }) {
-  const particleCount =
-    navigator.hardwareConcurrency > 0 && navigator.hardwareConcurrency <= 4
-      ? 380
-      : 620
+  const particleCount = PERFORMANCE_PROFILE.particleCount
   const geometry = useMemo(() => createParticleGeometry(particleCount), [])
   const targetColors = useRef({
     primary: new THREE.Color(theme.primary),

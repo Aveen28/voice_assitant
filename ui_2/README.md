@@ -87,6 +87,7 @@ src/
 │   ├── PerformanceProbe.jsx        Low-frequency FPS sampling
 │   └── ShootingStars.jsx           Timed background meteors and trails
 ├── config/
+│   ├── performance.js              Automatic Pi and desktop render profiles
 │   └── visuals.js                  State and fixed white visual configuration
 ├── hooks/
 │   └── useMicrophone.js            Web Audio capture and spectrum analysis
@@ -182,12 +183,27 @@ remote plain-HTTP address is normally blocked. Use Chromium locally on the Pi
 or configure HTTPS for remote microphone access.
 
 The project avoids per-frame React state for animation, shares orb geometry,
-uses one point-cloud draw call, disables MSAA, and caps device pixel ratio.
-Devices reporting four or fewer logical cores automatically use:
+uses one point-cloud draw call, and disables MSAA. Devices reporting four or
+fewer logical cores automatically use the `pi` profile:
 
-- DPR 1;
-- a reduced particle count;
-- lower post-processing resolution.
+- DPR `0.75`;
+- 3 background FBM octaves instead of 5;
+- 220 particles instead of 620;
+- orb detail levels 4/3 instead of 5/4;
+- post-processing resolution `0.4` instead of `0.8`.
+
+The active profile is available from the browser console:
+
+```javascript
+window.mycroftUI.getDiagnostics()
+```
+
+Use `?quality=pi` to force the Pi profile or `?quality=high` to force desktop
+quality. For example:
+
+```text
+http://127.0.0.1:5173/?quality=pi
+```
 
 For additional headroom, reduce the particle count in `Particles.jsx`, lower
 the icosahedron detail values in `Orb.jsx`, or remove the bloom composer in

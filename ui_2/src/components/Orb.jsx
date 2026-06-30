@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
+import { PERFORMANCE_PROFILE } from '../config/performance'
 import orbVertexShader from '../shaders/orb.vert.glsl?raw'
 import orbFragmentShader from '../shaders/orb.frag.glsl?raw'
 
@@ -370,11 +371,19 @@ export function Orb({ audioRef, visual, theme, state }) {
   const groupRef = useRef()
   const rotationSpeedRef = useRef(0.05)
   const shellGeometry = useMemo(
-    () => new THREE.IcosahedronGeometry(1.28, 5),
+    () =>
+      new THREE.IcosahedronGeometry(
+        1.28,
+        PERFORMANCE_PROFILE.shellDetail,
+      ),
     [],
   )
   const coreGeometry = useMemo(
-    () => new THREE.IcosahedronGeometry(0.74, 4),
+    () =>
+      new THREE.IcosahedronGeometry(
+        0.74,
+        PERFORMANCE_PROFILE.coreDetail,
+      ),
     [],
   )
 

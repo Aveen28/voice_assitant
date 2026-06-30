@@ -13,6 +13,8 @@ uniform vec3 uDeep;
 
 varying vec2 vUv;
 
+#define FBM_OCTAVES 5
+
 float hash21(vec2 p) {
   p = fract(p * vec2(123.34, 456.21));
   p += dot(p, p + 45.32);
@@ -35,7 +37,7 @@ float fbm(vec2 p) {
   float amplitude = 0.5;
   mat2 rotation = mat2(0.8, -0.6, 0.6, 0.8);
 
-  for (int index = 0; index < 5; index++) {
+  for (int index = 0; index < FBM_OCTAVES; index++) {
     value += noise(p) * amplitude;
     p = rotation * p * 2.03 + 17.1;
     amplitude *= 0.5;

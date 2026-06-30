@@ -9,9 +9,7 @@ import * as THREE from 'three'
 import { Background } from './components/Background'
 import { HudOverlay } from './components/HudOverlay'
 import { Orb } from './components/Orb'
-import { Particles } from './components/Particles'
 import { PerformanceProbe } from './components/PerformanceProbe'
-import { ShootingStars } from './components/ShootingStars'
 import {
   BASE_THEME,
   normalizeState,
@@ -37,8 +35,6 @@ function MycroftScene({ audioRef, onFpsUpdate, state, theme, visual }) {
   return (
     <>
       <Background audioRef={audioRef} visual={visual} theme={theme} />
-      <ShootingStars />
-      <Particles audioRef={audioRef} visual={visual} theme={theme} />
       <Orb
         audioRef={audioRef}
         visual={visual}

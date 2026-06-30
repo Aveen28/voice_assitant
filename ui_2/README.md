@@ -1,9 +1,9 @@
 # MYCROFT Neural Orb UI
 
 A cinematic, microphone-reactive interface for the TARS/MYCROFT assistant.
-The orb, background plasma, particle field, HUD rings, bloom, and telemetry all
-respond independently to live frequency data. Everything runs locally in the
-browser with no paid APIs and no backend.
+The orb, background plasma, HUD rings, bloom, and telemetry respond
+independently to live frequency data. Everything runs locally in the browser
+with no paid APIs and no backend.
 
 ## Requirements
 
@@ -83,9 +83,7 @@ src/
 │   ├── Controls.jsx                Microphone and state controls
 │   ├── HudOverlay.jsx              Orbital scanner rings and control overlay
 │   ├── Orb.jsx                     Layered shells, core, filaments, ripples
-│   ├── Particles.jsx               GPU-animated reactive particle field
-│   ├── PerformanceProbe.jsx        Low-frequency FPS sampling
-│   └── ShootingStars.jsx           Timed background meteors and trails
+│   └── PerformanceProbe.jsx        Low-frequency FPS sampling
 ├── config/
 │   ├── performance.js              Automatic Pi and desktop render profiles
 │   └── visuals.js                  State and fixed white visual configuration
@@ -95,11 +93,7 @@ src/
 │   ├── background.vert.glsl
 │   ├── background.frag.glsl
 │   ├── orb.vert.glsl
-│   ├── orb.frag.glsl
-│   ├── particles.vert.glsl
-│   ├── particles.frag.glsl
-│   ├── shootingStar.vert.glsl
-│   └── shootingStar.frag.glsl
+│   └── orb.frag.glsl
 └── styles/
     └── global.css                  HUD, controls, responsive presentation
 ```
@@ -109,18 +103,14 @@ src/
 The React Three Fiber canvas renders these layers in order:
 
 1. `Background.jsx` draws a full-screen GLSL field with FBM noise, flowing
-   ribbons, plasma currents, stars, and radial audio shockwaves.
-2. `ShootingStars.jsx` occasionally sends a softly glowing procedural meteor
-   across the background.
-3. `Particles.jsx` renders one `THREE.Points` draw call. Vertex shaders handle
-   drift, orbit, and audio bursts on the GPU.
-4. `Orb.jsx` combines:
+   ribbons, plasma currents, and radial audio shockwaves.
+2. `Orb.jsx` combines:
    - a deforming internal core;
    - three transparent procedural energy shells;
    - rotating torus-knot filaments;
    - expanding reactive rings.
-5. Post-processing applies selective bloom and vignette.
-6. `HudOverlay.jsx` renders the lightweight DOM/SVG cockpit layer above the
+3. Post-processing applies selective bloom and vignette.
+4. `HudOverlay.jsx` renders the lightweight DOM/SVG cockpit layer above the
    canvas.
 
 The scene uses no texture files. All orb and background detail is procedural.
@@ -138,13 +128,7 @@ filament masks, layer-specific opacity, and HDR radiance for selective bloom.
 
 `background.frag.glsl` builds multiple FBM fields and warps them into energy
 streams. Voice energy increases current brightness and speed. Audio amplitude
-also creates outward shockwaves while treble increases star activity.
-
-### Particle shaders
-
-Particles orbit and drift entirely in the vertex shader. Volume and spectral
-flux push particles outward and increase point size, avoiding per-frame React
-updates or hundreds of individual meshes.
+also creates outward shockwaves.
 
 ## Microphone processing
 
@@ -188,7 +172,6 @@ fewer logical cores automatically use the `pi` profile:
 
 - DPR `0.75`;
 - 3 background FBM octaves instead of 5;
-- 220 particles instead of 620;
 - orb detail levels 4/3 instead of 5/4;
 - post-processing resolution `0.4` instead of `0.8`.
 
@@ -205,9 +188,8 @@ quality. For example:
 http://127.0.0.1:5173/?quality=pi
 ```
 
-For additional headroom, reduce the particle count in `Particles.jsx`, lower
-the icosahedron detail values in `Orb.jsx`, or remove the bloom composer in
-`App.jsx`.
+For additional headroom, lower the icosahedron detail values in `Orb.jsx` or
+remove the bloom composer in `App.jsx`.
 
 ## Python backend integration
 
@@ -225,8 +207,8 @@ window.mycroftUI.getDiagnostics()
 
 `shutdown` decelerates the orb, internal filaments, reactive rings, and HUD
 into fixed resting positions. It drains the foreground to a static grey state
-while the independent background stars and shooting stars continue moving.
-Returning to `idle` runs the corresponding power-up transition.
+while the procedural background flow continues moving. Returning to `idle`
+runs the corresponding power-up transition.
 
 External audio frames can also drive the visual system:
 

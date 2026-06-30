@@ -89,14 +89,6 @@ void main() {
     (1.0 - smoothstep(0.15, 1.2, radialDistance)) *
     (0.025 + uAudio * 0.18);
 
-  vec2 starCell = floor((uv + vec2(time * 0.01, 0.0)) * 95.0);
-  vec2 starLocal = fract((uv + vec2(time * 0.01, 0.0)) * 95.0) - 0.5;
-  float starSeed = hash21(starCell);
-  float stars = step(0.988 - uTreble * 0.008, starSeed);
-  stars *= smoothstep(0.11, 0.0, length(starLocal));
-  stars *= 0.25 + 0.75 * (
-    sin(uTime * (0.5 + starSeed * 2.0) + starSeed * 30.0) * 0.5 + 0.5
-  );
   vec3 color = uDeep * (0.18 + fieldA * 0.1);
   color += uSecondary * plasma * (0.025 + uEnergy * 0.065);
   color += uPrimary * streamA * (0.045 + uEnergy * 0.2 + uBass * 0.24);
@@ -104,7 +96,6 @@ void main() {
     streamB *
     (0.035 + uEnergy * 0.14);
   color += uPrimary * shock * 0.62;
-  color += mix(vec3(0.55, 0.72, 1.0), uPrimary, 0.6) * stars * 0.72;
 
   float vignette = smoothstep(1.05, 0.18, radialDistance);
   color *= 0.34 + vignette * 0.62;

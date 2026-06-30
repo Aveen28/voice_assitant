@@ -19,7 +19,7 @@ async def run_client() -> None:
     if not SERVER_IP:
         raise ValueError(
             "PC_SERVER_IP is not set. Copy .env.example to .env and add the "
-            "Windows PC's local IP address."
+            "Windows PC's Tailscale IPv4 address."
         )
 
     server_url = f"ws://{SERVER_IP}:{SERVER_PORT}"

@@ -1,19 +1,48 @@
 # Raspberry Pi WebSocket client
 
-This client connects to the Windows PC, sends `Hello from Raspberry Pi` every
-few seconds, and prints the server's reply. If the connection fails or closes,
-it waits and reconnects automatically.
+This client connects to the Windows PC through Tailscale. The Raspberry Pi and
+Windows PC can be in different locations, behind different routers, and on
+different internet connections.
+
+Tailscale provides the encrypted private network. The WebSocket client sends
+`Hello from Raspberry Pi` every few seconds and reconnects automatically if
+the connection is interrupted.
 
 ## Requirements
 
 - Raspberry Pi running Ubuntu
 - Python 3.10 or newer
-- Raspberry Pi and Windows PC connected to the same network
+- Internet access
+- Tailscale installed on the Raspberry Pi and Windows PC
+- Both devices signed in to the same Tailscale network
 
-## Setup on the Raspberry Pi
+## 1. Install Tailscale on the Raspberry Pi
 
-Copy the `raspy_coms` folder to the Raspberry Pi. Then open a terminal in that
-folder and run:
+Follow the [official Tailscale Linux instructions](https://tailscale.com/docs/install/linux)
+or run:
+
+```bash
+curl -fsSL https://tailscale.com/install.sh | sh
+sudo tailscale up
+```
+
+Open the authentication URL printed by `tailscale up` and sign in to the same
+Tailscale account used on the Windows PC.
+
+Verify the connection:
+
+```bash
+tailscale status
+tailscale ip -4
+```
+
+The returned `100.x.y.z` address is the Raspberry Pi's stable Tailscale IPv4
+address.
+
+## 2. Configure the Python client
+
+Copy the `raspy_coms` folder to the Raspberry Pi, open a terminal in it, and
+run:
 
 ```bash
 sudo apt update
@@ -29,28 +58,37 @@ cp .env.example .env
 nano .env
 ```
 
-Set `PC_SERVER_IP` in `.env` to the Windows PC's IPv4 address. On the Windows
-PC, run `ipconfig` and use the IPv4 address for the network adapter connected
-to the Raspberry Pi's network. Keep `PC_SERVER_PORT=8765` unless the server
-configuration is changed.
+On the Windows PC, run this in PowerShell:
 
-Example:
+```powershell
+tailscale ip -4
+```
+
+Put the returned Windows Tailscale IPv4 address in the Raspberry Pi's `.env`:
 
 ```dotenv
-PC_SERVER_IP=192.168.1.50
+PC_SERVER_IP=100.101.102.103
 PC_SERVER_PORT=8765
 MESSAGE_INTERVAL_SECONDS=5
 RECONNECT_DELAY_SECONDS=5
 ```
 
-Start the client:
+Do not use the Windows LAN address such as `192.168.x.x`. Replace the example
+`100.101.102.103` with the actual address printed on the Windows PC.
+
+## 3. Test connectivity and run
+
+After starting the WebSocket server on Windows, test the private network from
+the Raspberry Pi:
 
 ```bash
+tailscale ping 100.101.102.103
 python client.py
 ```
 
-Press `Ctrl+C` to stop it.
+Replace the example address in the ping command with the Windows Tailscale
+address. Press `Ctrl+C` to stop the client.
 
-If it cannot connect, confirm that the Windows server is running, both devices
-are on the same network, the IP address is correct, and Windows Firewall allows
-inbound TCP traffic on port `8765`.
+If Tailscale ping succeeds but the client cannot connect, check that the
+Windows server is running and that Windows Firewall permits TCP port `8765`
+from the Raspberry Pi's Tailscale IP.

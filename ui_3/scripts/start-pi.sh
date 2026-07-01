@@ -53,6 +53,10 @@ CHROMIUM_ARGS=(
   --noerrdialogs
   --disable-infobars
   --disable-session-crashed-bubble
+  --disable-accelerated-video-decode
+  --disable-accelerated-video-encode
+  --disable-background-networking
+  --disable-component-extensions-with-background-pages
   --disable-pinch
   --overscroll-history-navigation=0
   --autoplay-policy=no-user-gesture-required
@@ -62,4 +66,23 @@ if [[ "${ORB_AUTO_ALLOW_MIC:-0}" == "1" ]]; then
   CHROMIUM_ARGS+=(--use-fake-ui-for-media-stream)
 fi
 
-"$CHROMIUM_BIN" "${CHROMIUM_ARGS[@]}" "$URL"
+filter_chromium_stderr() {
+  while IFS= read -r line; do
+    case "$line" in
+      *'Not loading module "atk-bridge"'*)
+        ;;
+      *"vaInitialize failed: unknown libva error"*)
+        ;;
+      *"org.gnome.Mutter.IdleMonitor.AddIdleWatch:"*"AppArmor policy prevents"*)
+        ;;
+      *":ERROR:google_apis/gcm/"*)
+        ;;
+      *)
+        printf '%s\n' "$line" >&2
+        ;;
+    esac
+  done
+}
+
+GTK_MODULES='' "$CHROMIUM_BIN" "${CHROMIUM_ARGS[@]}" "$URL" \
+  2> >(filter_chromium_stderr)

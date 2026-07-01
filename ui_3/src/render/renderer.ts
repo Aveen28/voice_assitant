@@ -11,6 +11,7 @@ export class Renderer {
   private readonly particles = new ParticleSystem()
   private width = 1
   private height = 1
+  private horizontalScale = 1
   private backgroundGradient: CanvasGradient | string = SETTINGS.renderer.background
 
   constructor(private readonly canvas: HTMLCanvasElement) {
@@ -31,6 +32,13 @@ export class Renderer {
     this.width = Math.max(1, window.innerWidth)
     this.height = Math.max(1, window.innerHeight)
 
+    const compensation = SETTINGS.renderer.displayCompensation
+    this.horizontalScale =
+      this.width === compensation.outputWidth &&
+      this.height === compensation.outputHeight
+        ? compensation.horizontalScale
+        : 1
+
     const pixelRatio = Math.min(
       window.devicePixelRatio || 1,
       SETTINGS.renderer.maxPixelRatio,
@@ -43,7 +51,7 @@ export class Renderer {
     this.context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0)
 
     const centerX = this.width / 2
-    const centerY = this.height * 0.47
+    const centerY = this.height / 2
     const radius = Math.max(this.width, this.height) * 0.58
     const gradient = this.context.createRadialGradient(
       centerX,
@@ -66,7 +74,7 @@ export class Renderer {
   ): void {
     const context = this.context
     const centerX = this.width / 2
-    const centerY = this.height * 0.47
+    const centerY = this.height / 2
     const radius = clamp(
       Math.min(this.width, this.height) * SETTINGS.orb.viewportScale,
       SETTINGS.orb.minRadius,
@@ -76,6 +84,11 @@ export class Renderer {
     context.globalAlpha = 1
     context.fillStyle = this.backgroundGradient
     context.fillRect(0, 0, this.width, this.height)
+
+    context.save()
+    context.translate(centerX, 0)
+    context.scale(this.horizontalScale, 1)
+    context.translate(-centerX, 0)
     this.orb.draw(context, centerX, centerY, radius, time, visual, audio)
     this.particles.draw(
       context,
@@ -87,5 +100,6 @@ export class Renderer {
       visual,
       audio,
     )
+    context.restore()
   }
 }

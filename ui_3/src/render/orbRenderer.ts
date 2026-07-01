@@ -89,22 +89,22 @@ export class OrbRenderer {
 
     context.save()
     context.strokeStyle = rgba(color, 0.2)
-    context.lineWidth = 7
+    context.lineWidth = 10
     context.shadowColor = rgba(color, 0.66)
-    context.shadowBlur = 16
+    context.shadowBlur = 20
     context.beginPath()
     context.arc(center, center, sphereRadius, 0, Math.PI * 2)
     context.stroke()
     context.restore()
 
     context.strokeStyle = rgba(accent, 0.86)
-    context.lineWidth = 2.2
+    context.lineWidth = 3.2
     context.beginPath()
     context.arc(center, center, sphereRadius - 1.3, 0, Math.PI * 2)
     context.stroke()
 
     context.strokeStyle = rgba(accent, 0.2)
-    context.lineWidth = 1
+    context.lineWidth = 1.4
     context.beginPath()
     context.arc(center, center, sphereRadius - 5, 0, Math.PI * 2)
     context.stroke()

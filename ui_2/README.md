@@ -1,9 +1,9 @@
 # MYCROFT Neural Orb UI
 
 A cinematic, microphone-reactive interface for the TARS/MYCROFT assistant.
-The orb, background plasma, HUD rings, bloom, and telemetry respond
-independently to live frequency data. Everything runs locally in the browser
-with no paid APIs and no backend.
+The orb core, background plasma, bloom, and controls respond independently to
+live frequency data. Everything runs locally in the browser with no paid APIs
+and no backend.
 
 ## Requirements
 
@@ -81,8 +81,8 @@ src/
 ├── components/
 │   ├── Background.jsx              Full-screen procedural energy field
 │   ├── Controls.jsx                Microphone and state controls
-│   ├── HudOverlay.jsx              Orbital scanner rings and control overlay
-│   ├── Orb.jsx                     Layered shells, core, filaments, ripples
+│   ├── HudOverlay.jsx              Controls and power-transition overlay
+│   ├── Orb.jsx                     Single microphone-reactive core
 │   └── PerformanceProbe.jsx        Low-frequency FPS sampling
 ├── config/
 │   ├── performance.js              Automatic Pi and desktop render profiles
@@ -104,11 +104,7 @@ The React Three Fiber canvas renders these layers in order:
 
 1. `Background.jsx` draws a full-screen GLSL field with FBM noise, flowing
    ribbons, plasma currents, and radial audio shockwaves.
-2. `Orb.jsx` combines:
-   - a deforming internal core;
-   - three transparent procedural energy shells;
-   - rotating torus-knot filaments;
-   - expanding reactive rings.
+2. `Orb.jsx` renders one deforming, microphone-reactive core mesh.
 3. Post-processing applies selective bloom and vignette.
 4. `HudOverlay.jsx` renders the lightweight DOM/SVG cockpit layer above the
    canvas.
@@ -121,8 +117,8 @@ The scene uses no texture files. All orb and background detail is procedural.
 deformation, and breathing motion. Bass affects broad surface movement, mids
 drive ripples, and treble drives fine detail.
 
-`orb.frag.glsl` combines fresnel edges, moving plasma, scanning bands,
-filament masks, layer-specific opacity, and HDR radiance for selective bloom.
+`orb.frag.glsl` combines fresnel edges, moving plasma, scanning bands, and HDR
+radiance for selective bloom.
 
 ### Background shaders
 
@@ -166,13 +162,13 @@ devices can load `http://<PI_IP>:5173`, but browser microphone access over a
 remote plain-HTTP address is normally blocked. Use Chromium locally on the Pi
 or configure HTTPS for remote microphone access.
 
-The project avoids per-frame React state for animation, shares orb geometry,
-uses one point-cloud draw call, and disables MSAA. Devices reporting four or
-fewer logical cores automatically use the `pi` profile:
+The project avoids per-frame React state for animation, renders one core draw
+call, and disables MSAA. Devices reporting four or fewer logical cores
+automatically use the `pi` profile:
 
 - DPR `0.75`;
 - 3 background FBM octaves instead of 5;
-- orb detail levels 4/3 instead of 5/4;
+- core detail level 3 instead of 4;
 - post-processing resolution `0.4` instead of `0.8`.
 
 The active profile is available from the browser console:
@@ -205,10 +201,9 @@ window.mycroftUI.setState('shutdown')
 window.mycroftUI.getDiagnostics()
 ```
 
-`shutdown` decelerates the orb, internal filaments, reactive rings, and HUD
-into fixed resting positions. It drains the foreground to a static grey state
-while the procedural background flow continues moving. Returning to `idle`
-runs the corresponding power-up transition.
+`shutdown` decelerates the core into a fixed resting position and drains it to
+a static grey state while the procedural background flow continues moving.
+Returning to `idle` runs the corresponding power-up transition.
 
 External audio frames can also drive the visual system:
 

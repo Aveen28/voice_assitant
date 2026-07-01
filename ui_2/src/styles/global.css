@@ -121,166 +121,8 @@ button {
   content: "";
 }
 
-.orbital-hud {
-  position: absolute;
-  top: 47.5%;
-  left: 50%;
-  width: min(46vw, 610px);
-  aspect-ratio: 1;
-  transform: translate(-50%, -50%);
-  opacity: 0.88;
-  transition:
-    opacity 2.2s ease-in-out,
-    filter 2.2s ease-in-out;
-}
-
-.hud-orbit,
-.hud-scan,
-.hud-vector {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.hud-orbit {
-  border: 1px solid color-mix(in srgb, var(--theme-primary) 32%, transparent);
-  border-radius: 50%;
-  box-shadow:
-    inset 0 0 35px rgba(0, 0, 0, 0.48),
-    0 0 28px color-mix(in srgb, var(--theme-primary) 8%, transparent);
-}
-
-.hud-orbit::before,
-.hud-orbit::after {
-  position: absolute;
-  border-radius: 50%;
-  content: "";
-}
-
-.hud-orbit::before {
-  inset: -3px;
-  border-top: 3px solid var(--theme-primary);
-  border-right: 3px solid transparent;
-  filter: drop-shadow(0 0 4px var(--theme-primary));
-}
-
-.hud-orbit::after {
-  top: 50%;
-  left: -4px;
-  width: 7px;
-  height: 7px;
-  background: var(--theme-accent);
-  box-shadow: 0 0 9px var(--theme-primary);
-}
-
-.hud-orbit-one {
-  inset: 4%;
-  width: 92%;
-  height: 92%;
-  border-style: dashed;
-  animation: orbit-clockwise 32s linear infinite;
-}
-
-.hud-orbit-two {
-  inset: 11%;
-  width: 78%;
-  height: 78%;
-  border-color: color-mix(in srgb, var(--theme-secondary) 42%, transparent);
-  animation: orbit-counter 21s linear infinite;
-}
-
-.hud-orbit-two::before {
-  border-top-color: var(--theme-secondary);
-}
-
-.hud-orbit-three {
-  inset: -3%;
-  width: 106%;
-  height: 106%;
-  border-style: dotted;
-  opacity: 0.34;
-  animation: orbit-clockwise 58s linear infinite;
-}
-
-.hud-scan {
-  border-radius: 50%;
-  background: conic-gradient(
-    from 0deg,
-    transparent 0deg,
-    transparent 312deg,
-    color-mix(in srgb, var(--theme-primary) 3%, transparent) 330deg,
-    color-mix(in srgb, var(--theme-primary) 24%, transparent) 356deg,
-    transparent 360deg
-  );
-  mask-image: radial-gradient(circle, transparent 0 46%, black 57%, transparent 72%);
-  animation: orbit-clockwise 7s linear infinite;
-}
-
-.hud-vector {
-  overflow: visible;
-  fill: none;
-  stroke: var(--theme-primary);
-  stroke-dasharray: 2 9;
-  stroke-width: 0.7;
-  opacity: 0.28;
-}
-
-.cardinal {
-  position: absolute;
-  color: var(--theme-accent);
-  font-family: ui-monospace, "Cascadia Code", monospace;
-  font-size: 10px;
-  font-style: normal;
-  text-shadow: 0 0 8px var(--theme-primary);
-}
-
-.cardinal-north {
-  top: -18px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.cardinal-east {
-  top: 50%;
-  right: -20px;
-  transform: translateY(-50%);
-}
-
-.cardinal-south {
-  bottom: -18px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.cardinal-west {
-  top: 50%;
-  left: -20px;
-  transform: translateY(-50%);
-}
-
-.state-voice-detected .orbital-hud {
-  animation: hud-impact 900ms ease-out infinite;
-}
-
 .state-shutdown.hud-overlay::before {
   opacity: 0.2;
-}
-
-.state-shutdown .orbital-hud {
-  filter: grayscale(1) brightness(0.58);
-  opacity: 0.3;
-}
-
-.state-shutdown .hud-scan {
-  opacity: 0.08;
-  transition: opacity 1.8s ease-in-out;
-}
-
-.state-shutdown .hud-orbit {
-  box-shadow:
-    inset 0 0 24px rgba(0, 0, 0, 0.62),
-    0 0 8px rgba(170, 176, 181, 0.03);
 }
 
 .power-transition {
@@ -541,28 +383,6 @@ input:focus-visible {
   outline-offset: 3px;
 }
 
-@keyframes orbit-clockwise {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes orbit-counter {
-  to {
-    transform: rotate(-360deg);
-  }
-}
-
-@keyframes hud-impact {
-  0%,
-  100% {
-    filter: brightness(1);
-  }
-  20% {
-    filter: brightness(1.22);
-  }
-}
-
 @keyframes power-veil-down {
   0% {
     opacity: 0;
@@ -660,10 +480,6 @@ input:focus-visible {
 }
 
 @media (max-width: 900px) {
-  .orbital-hud {
-    width: min(68vw, 560px);
-  }
-
   .control-dock {
     grid-template-columns: 210px 1fr;
     gap: 14px 18px;
@@ -671,11 +487,6 @@ input:focus-visible {
 }
 
 @media (max-width: 620px) {
-  .orbital-hud {
-    top: 42%;
-    width: 88vw;
-  }
-
   .control-dock {
     right: 9px;
     bottom: 9px;
@@ -703,22 +514,9 @@ input:focus-visible {
 }
 
 @media (max-height: 760px) and (min-width: 901px) {
-  .orbital-hud {
-    top: 43%;
-    width: min(40vw, 475px);
-  }
-
   .control-dock {
     min-height: 102px;
     padding-top: 12px;
     padding-bottom: 12px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hud-orbit,
-  .hud-scan,
-  .orbital-hud {
-    animation-duration: 120s !important;
   }
 }

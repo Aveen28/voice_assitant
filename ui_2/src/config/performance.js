@@ -13,6 +13,5 @@ export const PERFORMANCE_PROFILE = Object.freeze({
   dpr: lowPower ? 0.75 : [1, 1.5],
   bloomResolution: lowPower ? 0.4 : 0.8,
   backgroundOctaves: lowPower ? 3 : 5,
-  shellDetail: lowPower ? 4 : 5,
   coreDetail: lowPower ? 3 : 4,
 })

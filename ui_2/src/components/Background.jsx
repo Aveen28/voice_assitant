@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
+import { PERFORMANCE_PROFILE } from '../config/performance'
 import backgroundVertexShader from '../shaders/background.vert.glsl?raw'
 import backgroundFragmentShader from '../shaders/background.frag.glsl?raw'
 
@@ -12,6 +13,14 @@ export function Background({ audioRef, visual, theme }) {
     secondary: new THREE.Color(theme.secondary),
     deep: new THREE.Color(theme.deep),
   })
+  const fragmentShader = useMemo(
+    () =>
+      backgroundFragmentShader.replace(
+        '#define FBM_OCTAVES 5',
+        `#define FBM_OCTAVES ${PERFORMANCE_PROFILE.backgroundOctaves}`,
+      ),
+    [],
+  )
   const uniforms = useMemo(
     () => ({
       uTime: { value: 0 },
@@ -84,7 +93,7 @@ export function Background({ audioRef, visual, theme }) {
       <shaderMaterial
         ref={materialRef}
         vertexShader={backgroundVertexShader}
-        fragmentShader={backgroundFragmentShader}
+        fragmentShader={fragmentShader}
         uniforms={uniforms}
         depthWrite={false}
         depthTest={false}

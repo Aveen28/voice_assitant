@@ -1,9 +1,9 @@
 # MYCROFT Neural Orb UI
 
 A cinematic, microphone-reactive interface for the TARS/MYCROFT assistant.
-The orb, background plasma, particle field, HUD rings, bloom, and telemetry all
-respond independently to live frequency data. Everything runs locally in the
-browser with no paid APIs and no backend.
+The orb core, background plasma, bloom, and controls respond independently to
+live frequency data. Everything runs locally in the browser with no paid APIs
+and no backend.
 
 ## Requirements
 
@@ -81,12 +81,11 @@ src/
 ├── components/
 │   ├── Background.jsx              Full-screen procedural energy field
 │   ├── Controls.jsx                Microphone and state controls
-│   ├── HudOverlay.jsx              Orbital scanner rings and control overlay
-│   ├── Orb.jsx                     Layered shells, core, filaments, ripples
-│   ├── Particles.jsx               GPU-animated reactive particle field
-│   ├── PerformanceProbe.jsx        Low-frequency FPS sampling
-│   └── ShootingStars.jsx           Timed background meteors and trails
+│   ├── HudOverlay.jsx              Controls and power-transition overlay
+│   ├── Orb.jsx                     Single microphone-reactive core
+│   └── PerformanceProbe.jsx        Low-frequency FPS sampling
 ├── config/
+│   ├── performance.js              Automatic Pi and desktop render profiles
 │   └── visuals.js                  State and fixed white visual configuration
 ├── hooks/
 │   └── useMicrophone.js            Web Audio capture and spectrum analysis
@@ -94,11 +93,7 @@ src/
 │   ├── background.vert.glsl
 │   ├── background.frag.glsl
 │   ├── orb.vert.glsl
-│   ├── orb.frag.glsl
-│   ├── particles.vert.glsl
-│   ├── particles.frag.glsl
-│   ├── shootingStar.vert.glsl
-│   └── shootingStar.frag.glsl
+│   └── orb.frag.glsl
 └── styles/
     └── global.css                  HUD, controls, responsive presentation
 ```
@@ -108,18 +103,10 @@ src/
 The React Three Fiber canvas renders these layers in order:
 
 1. `Background.jsx` draws a full-screen GLSL field with FBM noise, flowing
-   ribbons, plasma currents, stars, and radial audio shockwaves.
-2. `ShootingStars.jsx` occasionally sends a softly glowing procedural meteor
-   across the background.
-3. `Particles.jsx` renders one `THREE.Points` draw call. Vertex shaders handle
-   drift, orbit, and audio bursts on the GPU.
-4. `Orb.jsx` combines:
-   - a deforming internal core;
-   - three transparent procedural energy shells;
-   - rotating torus-knot filaments;
-   - expanding reactive rings.
-5. Post-processing applies selective bloom and vignette.
-6. `HudOverlay.jsx` renders the lightweight DOM/SVG cockpit layer above the
+   ribbons, plasma currents, and radial audio shockwaves.
+2. `Orb.jsx` renders one deforming, microphone-reactive core mesh.
+3. Post-processing applies selective bloom and vignette.
+4. `HudOverlay.jsx` renders the lightweight DOM/SVG cockpit layer above the
    canvas.
 
 The scene uses no texture files. All orb and background detail is procedural.
@@ -130,20 +117,14 @@ The scene uses no texture files. All orb and background detail is procedural.
 deformation, and breathing motion. Bass affects broad surface movement, mids
 drive ripples, and treble drives fine detail.
 
-`orb.frag.glsl` combines fresnel edges, moving plasma, scanning bands,
-filament masks, layer-specific opacity, and HDR radiance for selective bloom.
+`orb.frag.glsl` combines fresnel edges, moving plasma, scanning bands, and HDR
+radiance for selective bloom.
 
 ### Background shaders
 
 `background.frag.glsl` builds multiple FBM fields and warps them into energy
 streams. Voice energy increases current brightness and speed. Audio amplitude
-also creates outward shockwaves while treble increases star activity.
-
-### Particle shaders
-
-Particles orbit and drift entirely in the vertex shader. Volume and spectral
-flux push particles outward and increase point size, avoiding per-frame React
-updates or hundreds of individual meshes.
+also creates outward shockwaves.
 
 ## Microphone processing
 
@@ -181,17 +162,30 @@ devices can load `http://<PI_IP>:5173`, but browser microphone access over a
 remote plain-HTTP address is normally blocked. Use Chromium locally on the Pi
 or configure HTTPS for remote microphone access.
 
-The project avoids per-frame React state for animation, shares orb geometry,
-uses one point-cloud draw call, disables MSAA, and caps device pixel ratio.
-Devices reporting four or fewer logical cores automatically use:
+The project avoids per-frame React state for animation, renders one core draw
+call, and disables MSAA. Devices reporting four or fewer logical cores
+automatically use the `pi` profile:
 
-- DPR 1;
-- a reduced particle count;
-- lower post-processing resolution.
+- DPR `0.75`;
+- 3 background FBM octaves instead of 5;
+- core detail level 3 instead of 4;
+- post-processing resolution `0.4` instead of `0.8`.
 
-For additional headroom, reduce the particle count in `Particles.jsx`, lower
-the icosahedron detail values in `Orb.jsx`, or remove the bloom composer in
-`App.jsx`.
+The active profile is available from the browser console:
+
+```javascript
+window.mycroftUI.getDiagnostics()
+```
+
+Use `?quality=pi` to force the Pi profile or `?quality=high` to force desktop
+quality. For example:
+
+```text
+http://127.0.0.1:5173/?quality=pi
+```
+
+For additional headroom, lower the icosahedron detail values in `Orb.jsx` or
+remove the bloom composer in `App.jsx`.
 
 ## Python backend integration
 
@@ -207,9 +201,8 @@ window.mycroftUI.setState('shutdown')
 window.mycroftUI.getDiagnostics()
 ```
 
-`shutdown` decelerates the orb, internal filaments, reactive rings, and HUD
-into fixed resting positions. It drains the foreground to a static grey state
-while the independent background stars and shooting stars continue moving.
+`shutdown` decelerates the core into a fixed resting position and drains it to
+a static grey state while the procedural background flow continues moving.
 Returning to `idle` runs the corresponding power-up transition.
 
 External audio frames can also drive the visual system:

@@ -9,14 +9,13 @@ import * as THREE from 'three'
 import { Background } from './components/Background'
 import { HudOverlay } from './components/HudOverlay'
 import { Orb } from './components/Orb'
-import { Particles } from './components/Particles'
 import { PerformanceProbe } from './components/PerformanceProbe'
-import { ShootingStars } from './components/ShootingStars'
 import {
   BASE_THEME,
   normalizeState,
   STATE_VISUALS,
 } from './config/visuals'
+import { PERFORMANCE_PROFILE } from './config/performance'
 import { useMicrophone } from './hooks/useMicrophone'
 
 const STATE_ACCENTS = {
@@ -32,15 +31,10 @@ const SHUTDOWN_THEME = {
   deep: '#030506',
 }
 
-const LOW_POWER_DEVICE =
-  navigator.hardwareConcurrency > 0 && navigator.hardwareConcurrency <= 4
-
 function MycroftScene({ audioRef, onFpsUpdate, state, theme, visual }) {
   return (
     <>
       <Background audioRef={audioRef} visual={visual} theme={theme} />
-      <ShootingStars />
-      <Particles audioRef={audioRef} visual={visual} theme={theme} />
       <Orb
         audioRef={audioRef}
         visual={visual}
@@ -51,7 +45,7 @@ function MycroftScene({ audioRef, onFpsUpdate, state, theme, visual }) {
       <EffectComposer
         multisampling={0}
         enableNormalPass={false}
-        resolutionScale={LOW_POWER_DEVICE ? 0.65 : 0.8}
+        resolutionScale={PERFORMANCE_PROFILE.bloomResolution}
       >
         <Bloom
           intensity={visual.bloom}
@@ -153,6 +147,7 @@ export default function App() {
       getDiagnostics: () => ({
         fps: fpsRef.current,
         audio: { ...audioRef.current },
+        performanceProfile: PERFORMANCE_PROFILE.name,
       }),
     })
 
@@ -185,7 +180,7 @@ export default function App() {
     <main className="app-shell">
       <div className="scene-layer">
         <Canvas
-          dpr={LOW_POWER_DEVICE ? 1 : [1, 1.5]}
+          dpr={PERFORMANCE_PROFILE.dpr}
           camera={{
             position: [0, 0, 7.4],
             fov: 42,
